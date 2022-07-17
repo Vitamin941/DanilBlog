@@ -2,6 +2,8 @@ package ru.isu.math.config;
 
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
+import javax.servlet.Filter;
+
 public class DispatcherServletInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
     @Override
     protected Class<?>[] getRootConfigClasses() {
@@ -11,6 +13,12 @@ public class DispatcherServletInitializer extends AbstractAnnotationConfigDispat
     @Override
     protected Class<?>[] getServletConfigClasses() {
         return new Class[] {MVCConfig.class};
+    }
+
+    @Override
+    protected Filter[] getServletFilters() {
+        CharacterFilter filter = new CharacterFilter();
+        return new Filter[] {filter};
     }
 
     @Override
