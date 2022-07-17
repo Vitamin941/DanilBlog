@@ -25,17 +25,7 @@ public class MVCConfig implements WebMvcConfigurer {
     MVCConfig(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
-
-    @Bean
-    public ThymeleafViewResolver viewResolver() {
-        ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
-        viewResolver.setTemplateEngine(templateEngine());
-        viewResolver.setCharacterEncoding("UTF-8");
-        viewResolver.setContentType("text/html; charset=UTF-8");
-        viewResolver.setOrder(1);
-        viewResolver.setViewNames(new String[]{".html", ".xhtml"});
-        return viewResolver;
-    }
+    
     @Bean
     public SpringResourceTemplateResolver templateResolver() {
         SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
