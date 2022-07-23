@@ -1,4 +1,4 @@
-package ru.isu.math.config;
+package ru.isu.math.config.web;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;

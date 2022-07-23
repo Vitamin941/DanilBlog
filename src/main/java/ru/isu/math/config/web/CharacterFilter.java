@@ -1,4 +1,4 @@
-package ru.isu.math.config;
+package ru.isu.math.config.web;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;
