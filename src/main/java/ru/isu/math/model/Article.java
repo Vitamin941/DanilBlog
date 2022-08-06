@@ -1,9 +1,14 @@
 package ru.isu.math.model;
 
+import javax.persistence.*;
 import java.sql.Date;
 
+@Entity
+@Table(name = "articles")
 public class Article {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
     private String title;

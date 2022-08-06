@@ -2,11 +2,16 @@ package ru.isu.math.config.persistance;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -20,19 +25,27 @@ import java.util.Properties;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories
+@PropertySource("classpath:/application.properties")
 public class PersistenceContext {
 
     @Value("${spring.datasource.username}")
-    private String username;
+    private static String username;
 
     @Value("${spring.datasource.password}")
-    private String password;
+    private static String password;
 
     @Value("${spring.datasource.url}")
-    private String url;
+    private static String url;
 
     @Value("${spring.datasource.driver_class_name}")
-    private String driverClassName;
+    private static String driverClassName;
+
+    ApplicationContext context;
+
+    @Autowired
+    PersistenceContext(ApplicationContext context) {
+        this.context = context;
+    }
 
     @Bean
     public DataSource dataSource() {
