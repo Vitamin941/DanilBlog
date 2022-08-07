@@ -1,26 +1,23 @@
 package ru.isu.math.config.persistance;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.JpaVendorAdapter;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.jdbc.repository.config.AbstractJdbcConfiguration;
+import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
-
 import javax.sql.DataSource;
-import java.util.Properties;
 
 @Configuration
-@EnableTransactionManagement
-@EnableJpaRepositories
-public class PersistenceContext {
+@EnableJdbcRepositories(basePackages = "ru.isu.math.repository")
+@PropertySource("classpath:/application.properties")
+public class PersistenceContext extends AbstractJdbcConfiguration {
 
     @Value("${spring.datasource.username}")
     private String username;
@@ -34,50 +31,24 @@ public class PersistenceContext {
     @Value("${spring.datasource.driver_class_name}")
     private String driverClassName;
 
-    @Bean
+
+    @Bean(name = "datasource")
     public DataSource dataSource() {
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(url);
-        config.setUsername(username);
-        config.setPassword(password);
-        config.setDriverClassName(driverClassName);
-        return new HikariDataSource(config);
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName(driverClassName);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
+        dataSource.setUrl(url);
+        return dataSource;
     }
 
     @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-
-        LocalContainerEntityManagerFactoryBean em
-                = new LocalContainerEntityManagerFactoryBean();
-        em.setDataSource(dataSource());
-        em.setPackagesToScan("ru.isu.math.model");
-
-        JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-        em.setJpaVendorAdapter(vendorAdapter);
-        em.setJpaProperties(properties());
-
-        return em;
+    public NamedParameterJdbcOperations namedParameterJdbcOperations() {
+        return new NamedParameterJdbcTemplate(dataSource());
     }
 
     @Bean
     public PlatformTransactionManager transactionManager() {
-        JpaTransactionManager transactionManager = new JpaTransactionManager();
-        transactionManager.setEntityManagerFactory(entityManagerFactory().getObject());
-
-        return transactionManager;
-    }
-
-    @Bean
-    public PersistenceExceptionTranslationPostProcessor exceptionTranslation(){
-        return new PersistenceExceptionTranslationPostProcessor();
-    }
-
-
-    private Properties properties() {
-        Properties properties = new Properties();
-        properties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQL9Dialect");
-        properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
-
-        return properties;
+        return new DataSourceTransactionManager(dataSource());
     }
 }
